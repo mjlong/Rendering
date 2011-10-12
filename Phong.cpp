@@ -39,6 +39,30 @@ float3 Phong::shade(const Ray& r, HitInfo& hit, bool emit) const
   //       (b) I suggest that you convert shininess to an integer and use the
   //       function int_pow(...) which is much more efficient than the general
   //       pow(...) function.
-
-  return Lambertian::shade(r, hit, emit);
+    
+    float3 result = make_float3(0.0f);
+    
+    for (int i = 0; i < lights.size(); i++) {
+        float3 dir;
+        float3 L;
+        
+        if (lights[i]->sample(hit.position, dir, L)) {
+            float value = optix::dot(hit.shading_normal, dir);
+            if (value > 0) {
+                int n = (int)s;
+//                int a = int_pow(optix::dot(-r.direction,optix::reflect(-dir, hit.shading_normal)), n);
+                float3 V = optix::reflect(-dir, hit.shading_normal);
+                float a = optix::dot(-r.direction, V);
+                if (n%2 == 0 && a < 0.0) {
+                    a = 0;
+                } else {
+                    a = int_pow(a , n);
+                }
+                
+                result += rho_s * a;
+            }
+        }
+    }
+        
+  return result + Lambertian::shade(r, hit, emit);
 }
