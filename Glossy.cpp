@@ -31,6 +31,6 @@ float3 Glossy::shade(const Ray& r, HitInfo& hit, bool emit) const
   // Hint: Use the function shade_new_ray(...) to pass a newly traced ray to
   //       the shader for the surface it hit.
     
-    return Transparent::shade(r, hit, emit) + Phong::shade(r, hit, emit);
+    return Transparent::shade(r, hit, emit) + 0.1 * Phong::shade(r, hit, emit);
 
 }

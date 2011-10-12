@@ -53,13 +53,13 @@ float3 Phong::shade(const Ray& r, HitInfo& hit, bool emit) const
 //                int a = int_pow(optix::dot(-r.direction,optix::reflect(-dir, hit.shading_normal)), n);
                 float3 V = optix::reflect(-dir, hit.shading_normal);
                 float a = optix::dot(-r.direction, V);
-                if (n%2 == 0 && a < 0.0) {
+                if (a < 0.0) {
                     a = 0;
                 } else {
                     a = int_pow(a , n);
                 }
                 
-                result += rho_s * a;
+                result += L * rho_s * a;
             }
         }
     }
