@@ -14,17 +14,28 @@ using namespace optix;
 
 float3 RayCaster::compute_pixel(unsigned int x, unsigned int y) const
 {    
+    float3 rtn;
+    rtn.x = 0.0;
+    rtn.y = 0.0;
+    rtn.z = 0.0;
     
-    optix::Ray r = scene->get_camera()->get_ray(optix::make_float2(x, y)*win_to_ip-lower_left);
-    HitInfo hit;
+    for (int i = 0; i < subdivs*subdivs; i++) {
 
-    scene->closest_hit(r, hit);
+        optix::float2 pixel = optix::make_float2(x, y)*win_to_ip-lower_left;
+        
+        optix::Ray r = scene->get_camera()->get_ray(pixel + jitter[i]);
+        HitInfo hit;
+
+        scene->closest_hit(r, hit);
     
-    if (hit.has_hit) {
-        return get_shader(hit)->shade(r, hit);
+        if (hit.has_hit) {
+            rtn += get_shader(hit)->shade(r, hit);
+        } else {
+            rtn += get_background();
+        }
     }
-
-    return get_background();
+    
+    return rtn/jitter.size();
     // Use the scene and its camera
   // to cast a ray that computes the color of the pixel at index (x, y).
   //
@@ -80,7 +91,7 @@ void RayCaster::compute_jitters()
   for(unsigned int i = 0; i < subdivs; ++i)
     for(unsigned int j = 0; j < subdivs; ++j)
     {
-      jitter[i*subdivs + j].x = static_cast<float>(safe_mt_random() + j)*step.x; 
+      jitter[i*subdivs + j].x = static_cast<float>(safe_mt_random() + j)*step.x;
       jitter[i*subdivs + j].y = static_cast<float>(safe_mt_random() + i)*step.y; 
     }
 }
