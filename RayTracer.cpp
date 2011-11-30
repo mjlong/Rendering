@@ -41,8 +41,27 @@ bool RayTracer::trace_refracted(const Ray& in, const HitInfo& in_hit, Ray& out, 
     // Compute the Fresnel reflectance (see fresnel.h) and return it in R.
     // Return true if the refracted ray hit anything.
     // Remember that the function must handle total internal reflection.
-    R = 0.1;
-    return trace_refracted(in, in_hit, out, out_hit);
+    float3 normal, direction;
+    float cos_theta_in;
+    out_hit.ray_ior = get_ior_out(in, in_hit, direction, normal, cos_theta_in);
+
+    if(!refract(out.direction, -direction, normal, out_hit.ray_ior/in_hit.ray_ior)) {
+        R = 1.0;
+        return false;
+    }
+
+    out = make_Ray(in_hit.position, out.direction, 0, 1e-3, RT_DEFAULT_MAX);
+    out_hit.trace_depth = in_hit.trace_depth + 1;
+    
+    bool rtn = trace_to_closest(out, out_hit);
+
+    float3 outNormal = -normal;
+    float3 outDir = out.direction;
+    float cos_theta_out = dot(outNormal, outDir);
+    
+    R = fresnel_R(cos_theta_in, cos_theta_out, in_hit.ray_ior, out_hit.ray_ior);
+    
+    return rtn;
 }
 
 float RayTracer::get_ior_out(const Ray& in, const HitInfo& in_hit, float3& dir, float3& normal, float& cos_theta_in) const
