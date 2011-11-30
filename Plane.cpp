@@ -51,6 +51,17 @@ bool Plane::intersect(const Ray& r, HitInfo& hit, unsigned int prim_idx) const
         hit.shading_normal = onb.m_normal;
         hit.material = &material;
         hit.has_hit = true;
+        hit.position = r.direction * t;
+    }
+    
+    if (material.has_texture) {
+        
+        optix::float3 ort = hit.position - position;
+        
+        float u = optix::dot(ort, onb.m_tangent);
+        float v = optix::dot(ort, onb.m_binormal);
+        
+        hit.texcoord = make_float3(u, v, 0) * tex_scale;
     }
     
     return hit.has_hit;

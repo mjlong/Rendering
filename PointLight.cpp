@@ -49,10 +49,9 @@ bool PointLight::sample(const float3& pos, float3& dir, float3& L) const
 bool PointLight::emit(Ray& r, HitInfo& hit, float3& Phi) const
 {
   // Sample ray direction and create ray
-
-  // Trace ray
-  
-  // If a surface was hit, compute Phi and return true
-
+    
+    // Trace ray
+    
+    // If a surface was hit, compute Phi and return true
   return false;
 }

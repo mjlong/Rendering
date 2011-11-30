@@ -46,11 +46,14 @@ float4 Texture::sample_nearest(const float3& texcoord) const
   if(!fdata)
     return make_float4(0.0f);
 
-  // Use texcoord.x and texcoord.y as uv-coordinates to
-  // look-up the nearest texel in the fdata array which holds
-  // the texture in float4 format.
+    float a = roundf((texcoord.x - floor(texcoord.x)) * (width - 1));
+    float b = (height-1) - roundf((texcoord.y - floor(texcoord.y)) * (height - 1));
+    
+    int index = width * a + b;
 
-  return make_float4(0.0f);
+    float4 rtn = fdata[index];
+    
+    return rtn;
 }
 
 float4 Texture::sample_linear(const float3& texcoord) const
@@ -61,7 +64,7 @@ float4 Texture::sample_linear(const float3& texcoord) const
   // Use texcoord.x and texcoord.y as uv-coordinates. Look-up 
   // the four nearest neighbors in the fdata array and use
   // bilinear interpolation to find the texture value.
-  return make_float4(0.0f);
+    return sample_nearest(texcoord);
 }
 
 float4 Texture::look_up(unsigned int idx) const
